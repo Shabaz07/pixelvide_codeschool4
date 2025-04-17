@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <aside class="col-md-3 col-lg-2 bg-dark text-white vh-100 position-fixed" id="sidebar">
+                <div class="p-3">
+                    <div class="d-flex align-items-center mb-4 py-2">
+                        <div class="bg-primary rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4 class="m-0 fw-bold">Admin Panel</h4>
+                    </div>
+                    
+                    <nav>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-white active py-2 px-3">
+                                    <i class="fas fa-users me-2"></i>Employee Details
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-white py-2 px-3" id="salary-table">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Salary Details
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-white py-2 px-3">
+                                    <i class="fas fa-chart-bar me-2"></i> Reports
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-white py-2 px-3">
+                                    <i class="fas fa-university me-2"></i>HOA
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-white py-2 px-3">
+                                    <i class="fas fa-calendar-alt me-2"></i>Leaves
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-white py-2 px-3">
+                                    <i class="fas fa-cog me-2"></i> Settings
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    
+                    <div class="position-absolute bottom-0 p-3 w-100">
+                        <a href="login.html" class="nav-link text-white d-flex align-items-center py-2 px-3 bg-danger bg-opacity-25 rounded">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="col-md-9 col-lg-10 ms-md-auto px-4">
+                <!-- Header -->
+                <header class="d-flex justify-content-between align-items-center py-3 border-bottom sticky-top bg-white">
+                    <div class="d-flex align-items-center">
+                        <button id="sidebar-toggle" class="btn btn-outline-secondary me-3 d-md-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="h4 m-0 fw-bold">Employee Management</h1>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="input-group me-3" style="max-width: 300px;">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="search" id="search-input" class="form-control bg-light border-start-0" placeholder="Search...">
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2 fw-semibold">Admin</span>
+                            <div class="bg-primary rounded-circle p-2 text-white text-center d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">A</div>
+                        </div>
+                    </div>
+                </header>
+
+                <!--Emp details -->
+                <div class="py-4 content-section" id="employee-details">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
+                            <h2 class="h5 m-0 fw-bold">Employees</h2>
+                            <button class="btn btn-primary" id="add-emp-btn">
+                                <i class="fas fa-plus me-2"></i> Add Employee
+                            </button>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="table-responsive table-bordered">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th class="text-white">Id</th>
+                                            <th class="text-white">Full Name</th>
+                                            <th class="text-white">Date of Birth</th>
+                                            <th class="text-white">Gender</th>
+                                            <th class="text-white">Phone</th>
+                                            <th class="text-white">Working Status</th>
+                                            <th class="text-white">Designation</th>
+                                            <th class="text-white">Location</th>
+                                            <th class="text-white">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employeeTable">
+                                        <!-- Table rows will be dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-results" class="text-center text-muted d-none py-4">
+                                <i class="fas fa-search fa-2x mb-3 text-secondary"></i>
+                                <p>No users found matching your search criteria.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer d-flex justify-content-between bg-light py-3">
+                            <div>
+                                Showing <span id="showing-count" class="fw-bold">0</span> of <span id="total-count" class="fw-bold">0</span> users
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-secondary btn-sm me-2" disabled>
+                                    <i class="fas fa-chevron-left me-1"></i> Previous
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" disabled>
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!--salary display-->
+                <div class="py-4 content-section" id="salary-details">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
+                            <h2 class="h5 m-0 fw-bold">Salary Details</h2>
+                            <button class="btn btn-primary" id="add-sal-btn">
+                                <i class="fas fa-plus me-2"></i> Add Salary
+                            </button>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="table-responsive table-bordered">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th class="text-white">Emp Id</th>
+                                            <th class="text-white">Month</th>
+                                            <th class="text-white">Year</th>
+                                            <th class="text-white">Paid On</th>
+                                            <th class="text-white">Gross</th>
+                                            <th class="text-white">Deduction</th>
+                                            <th class="text-white">Net</th>
+                                            <th class="text-white">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salary-table-body">
+                                        <!-- Table rows will be dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-results" class="text-center text-muted d-none py-4">
+                                <i class="fas fa-search fa-2x mb-3 text-secondary"></i>
+                                <p>No salary records found matching your search criteria.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer d-flex justify-content-between bg-light py-3">
+                            <div>
+                                Showing <span id="showing-count" class="fw-bold">0</span> of <span id="total-count" class="fw-bold">0</span> records
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-secondary btn-sm me-2" disabled>
+                                    <i class="fas fa-chevron-left me-1"></i> Previous
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" disabled>
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Report-->
+                <div class="py-4 content-section" id="reports">
+                    <div class="card">
+                        <div class="card-header py-3">
+                            <h2 class="h5 m-0 fw-bold">Reports</h2>
+                        </div>
+                        <div class="container mt-5">
+                            <div class="row mt-4">
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                    <div class="card h-100 shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Total Employees</h5>
+                                            <p class="card-text text-white ms-2" id="totalEmployees">Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                    <div class="card h-100 shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Average Monthly Salary</h5>
+                                            <p class="card-text text-white ms-2" id="avgMonthlySalary">Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                    <div class="card h-100 shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Average Yearly Salary</h5>
+                                            <p class="card-text text-white ms-2" id="avgYearlySalary">Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <!-- Salary Breakdown -->
+                            <div class="row mt-4">
+                                <!-- Average Monthly Salary by Role -->
+                                <div class="col-12 mb-4">
+                                    <div class="card shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Average Monthly Salary by Role</h5>
+                                            <div class="mt-3">
+                                                <div class="card h-100 shadow border-0">
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover align-middle">
+                                                                <thead class="table-dark">
+                                                                    <tr>
+                                                                        <th class="text-white">Role</th>
+                                                                        <th class="text-white">Employee Count</th>
+                                                                        <th class="text-white">Avg Monthly Salary</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="monthlySalaryByRoleTable">
+                                                                    <!-- Table rows will be dynamically populated -->
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div id="no-results-monthly-role" class="text-center text-muted d-none py-4">
+                                                            <i class="fas fa-search fa-2x mb-3 text-secondary"></i>
+                                                            <p>No salary data available for roles.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <!-- Average Monthly Salary by Location -->
+                                <div class="col-12 mb-4">
+                                    <div class="card shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Average Monthly Salary by Location</h5>
+                                            <div class="mt-3">
+                                                <div class="card h-100 shadow border-0">
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover align-middle">
+                                                                <thead class="table-dark">
+                                                                    <tr>
+                                                                        <th class="text-white">Location</th>
+                                                                        <th class="text-white">Employee Count</th>
+                                                                        <th class="text-white">Avg Monthly Salary</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="monthlySalaryByLocationTable">
+                                                                    <!-- Table rows will be dynamically populated -->
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div id="no-results-monthly-location" class="text-center text-muted d-none py-4">
+                                                            <i class="fas fa-search fa-2x mb-3 text-secondary"></i>
+                                                            <p>No salary data available for locations.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <!-- Average Yearly Salary by Role -->
+                                
+                
+                                <!-- Average Yearly Salary by Location -->
+                                <div class="col-12 mb-4">
+                                    <div class="card shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Average Yearly Salary by Location</h5>
+                                            <div class="mt-3">
+                                                <div class="card h-100 shadow border-0">
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover align-middle">
+                                                                <thead class="table-dark">
+                                                                    <tr>
+                                                                        <th class="text-white">Location</th>
+                                                                        <th class="text-white">Employee Count</th>
+                                                                        <th class="text-white">Avg Yearly Salary</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="yearlySalaryByLocationTable">
+                                                                    <!-- Table rows will be dynamically populated -->
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div id="no-results-yearly-location" class="text-center text-muted d-none py-4">
+                                                            <i class="fas fa-search fa-2x mb-3 text-secondary"></i>
+                                                            <p>No salary data available for locations.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <!-- Chart Section - Monthly and Yearly Charts -->
+                            <div class="row mt-5">
+                                <div class="col-12 mb-4">
+                                    <div class="card shadow border-0">
+                                        <div class="card-body bg-primary">
+                                            <h5 class="card-title text-white">Monthly Salary Trend (2025)</h5>
+                                            <div class="mt-3">
+                                                <div class="card h-100 shadow border-0">
+                                                    <div class="card-body">
+                                                        <canvas id="monthlySalaryChart" height="350"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--HOA-->
+                <div class="py-4 content-section" id="hoa">
+                    <div class="card" id="hoaCard">
+                        <div class="card-header py-3">
+                            <h2 class="h5 m-0 fw-bold">Add New Head Of Account</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="hoaForm" class="row g-2">
+                                <!-- Name of HOD -->
+                                <div class="row align-items-center mb-2">
+                                    <label for="nameOfHOD" class="col-12 col-md-3 form-label fw-semibold">Name Of HOD:<span class="text-danger">*</span></label>
+                                    <div class="col-12 col-md-9">
+                                        <select class="form-select form-select-sm" id="nameOfHOD" required>
+                                            <option value="" disabled>Select Name Of HOD</option>
+                                            <option value="1">Agriculture Dept</option>
+                                            <option value="2">Education Dept</option>
+                                            <option value="3">Health Dept</option>
+                                            <option value="4">Rural Dev. Dept</option>
+                                            <option value="5">Urban Planning Dept</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            
+                                <!-- Budget Year -->
+                                <div class="row align-items-center mb-2">
+                                    <label for="budgetYear" class="col-12 col-md-3 form-label fw-semibold">Budget Year:<span class="text-danger">*</span></label>
+                                    <div class="col-12 col-md-9">
+                                        <select class="form-select form-select-sm" id="budgetYear" required>
+                                            <option value="" disabled>Select Budget Year</option>
+                                            <option value="2024-2025">2024-2025</option>
+                                            <option value="2023-2024">2023-2024</option>
+                                            <option value="2022-2023">2022-2023</option>
+                                            <option value="2021-2022">2021-2022</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            
+                                <!-- Establishment/Scheme -->
+                                <div class="row align-items-center mb-2">
+                                    <label for="establishment" class="col-12 col-md-3 form-label fw-semibold">Establishment/Scheme:<span class="text-danger">*</span></label>
+                                    <div class="col-12 col-md-9">
+                                        <select class="form-select form-select-sm" id="establishment" required>
+                                            <option value="" disabled>Select Establishment/Scheme</option>
+                                            <option value="1">Establishment</option>
+                                            <option value="2">Scheme</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Major Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0"> 
+                                        <input type="text" id="MajorHead" placeholder="xxxx" class="input-group form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Sub-Major Head -->
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Sub-Major Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0">
+                                        <input type="text" id="SubMajorHead" placeholder="xx" class="input-group form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Minor Head -->
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Minor Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0">
+                                        <input type="text" id="MinorHead" placeholder="xxx" class="input-group form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Group Sub Head -->
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Group Sub Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0">
+                                        <input type="text" id="GroupSubHead" placeholder="xx" class="input-group form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Sub Head -->
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Sub Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0">
+                                        <input type="text" id="SubHead" placeholder="xx" class="input-group form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Detailed Head -->
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Detailed Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0">
+                                        <input type="text" id="DetailedHead" placeholder="xxx" class="input-group form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Sub Detailed Head -->
+                                <div class="row align-items-center mb-2">
+                                    <label class="col-md-3 col-form-label fw-semibold">Sub Detailed Head:<span class="text-danger">*</span></label>
+                                    <div class="col-md-4 mb-1 mb-md-0">
+                                        <input type="text" id="SubDetailedHead" placeholder="xxx" class="input-group form-control form-control-sm" >
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input class="form-control form-control-sm" placeholder="Description" readonly />
+                                    </div>
+                                </div>
+                            
+                                <!-- Charged/Voted -->
+                                <div class="row align-items-center mb-3">
+                                    <label class="col-12 col-md-3 form-label fw-semibold">Charged/Voted:<span class="text-danger">*</span></label>
+                                    <div class="col-12 col-md-9">
+                                        <select class="form-select form-select-sm" id="ChargedVoted" required>
+                                            <option value="" disabled>Select Charged/Voted</option>
+                                            <option selected>Voted</option>
+                                            <option>Charged</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            
+                                <!-- Buttons -->
+                                <div class="d-flex justify-content-end gap-2 pt-2">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="clearForm()">Clear</button>
+                                    <button type="submit" class="btn btn-sm btn-success" id="submitHoa">SUBMIT HOA</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Leaves-->
+                <div class="py-4 content-section" id="leaves">
+                    <div class="card">
+                        <div class="card-header py-3">
+                            <h2 class="h5 m-0 fw-bold">Leave Requests</h2>
+                        </div>
+                        <div class="container mt-5">
+                            <div class="card shadow border-0">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th class="text-white">Leave ID</th>
+                                                    <th class="text-white">Employee Name</th>
+                                                    <th class="text-white">Department</th>
+                                                    <th class="text-white">Leave Type</th>
+                                                    <th class="text-white">From Date</th>
+                                                    <th class="text-white">To Date</th>
+                                                    <th class="text-white">Days</th>
+                                                    <th class="text-white">Reason</th>
+                                                    <th class="text-white">Applied On</th>
+                                                    <th class="text-white">Status</th>
+                                                    <th class="text-white">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Rows will be dynamically populated -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <!--Settings-->
+                <div class="py-4 content-section" id="settings">
+                    <div class="card">
+                        <div class="card-header py-3">
+                            <h2 class="h5 m-0 fw-bold">Settings</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i> Settings section is under development.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- emp View/Edit Modal -->
+    <div class="modal" id="view-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="view-emp-id" class="form-label">Employee ID</label>
+                        <input type="text" id="view-emp-id" class="form-control" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="view-first-name" class="form-label">First Name</label>
+                            <input type="text" id="view-first-name" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="view-last-name" class="form-label">Last Name</label>
+                            <input type="text" id="view-last-name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-surname" class="form-label">Surname</label>
+                        <input type="text" id="view-surname" class="form-control">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="view-doj" class="form-label">Date of Joining</label>
+                            <input type="date" id="view-doj" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="view-dob" class="form-label">Date of Birth</label>
+                            <input type="date" id="view-dob" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-gender" class="form-label">Gender</label>
+                        <select id="view-gender" class="form-select">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-phone" class="form-label">Phone Number</label>
+                        <input type="text" id="view-phone" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-working-status" class="form-label">Working Status</label>
+                        <select id="view-working-status" class="form-select">
+                            <option value="working">Working</option>
+                            <option value="retired">Retired</option>
+                            <option value="suspended">Suspended</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-designation" class="form-label">Designation</label>
+                        <select id="view-designation" class="form-select">
+                            <option value="Software Engineer">Software Engineer</option>
+                            <option value="Project Manager">Project Manager</option>
+                            <option value="HR Manager">HR Manager</option>
+                            <option value="Data Analyst">Data Analyst</option>
+                            <option value="System Administrator">System Administrator</option>
+                            <option value="SDE">SDE</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-location" class="form-label">Location</label>
+                        <select id="view-location" class="form-select">
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Medak">Medak</option>
+                            <option value="Karimnagar">Karimnagar</option>
+                            <option value="Mahbubnagar">Mahbubnagar</option>
+                            <option value="Ranga Reddy">Ranga Reddy</option>
+                            <option value="Medchal">Medchal</option>
+                            <option value="HYD">HYD</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="view-gross" class="form-label">Gross Salary</label>
+                        <input type="number" id="view-gross" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="update-emp-submit" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Add emp Modal -->
+    <div class="modal fade" id="add-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold">Add New Employee</h5>
+                    <button type="button" class="btn-close close-btn" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-form">
+                        <div class="container-fluid">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-emp-id" class="form-label fw-bold">Emp Id</label>
+                                    <input type="text" class="form-control" id="add-emp-id" placeholder="Enter Employee ID" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-first-name" class="form-label fw-bold">First Name</label>
+                                    <input type="text" class="form-control" id="add-first-name" placeholder="Enter First Name" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-last-name" class="form-label fw-bold">Last Name</label>
+                                    <input type="text" class="form-control" id="add-last-name" placeholder="Enter Last Name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-surname" class="form-label fw-bold">Surname</label>
+                                    <input type="text" class="form-control" id="add-surname" placeholder="Enter Surname" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-doj" class="form-label fw-bold">Date of Joining</label>
+                                    <input type="date" class="form-control" id="add-doj" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-dob" class="form-label fw-bold">Date of Birth</label>
+                                    <input type="date" class="form-control" id="add-dob" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-gender" class="form-label fw-bold">Gender</label>
+                                    <select class="form-select" id="add-gender" required>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-phone" class="form-label fw-bold">Phone</label>
+                                    <input type="tel" class="form-control" id="add-phone" placeholder="Enter Phone Number" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-working-status" class="form-label fw-bold">Working Status</label>
+                                    <select class="form-select" id="add-working-status" required>
+                                        <option value="working">Working</option>
+                                        <option value="expired">Expired</option>
+                                        <option value="retired">Retired</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-designation" class="form-label fw-bold">Designation</label>
+                                    <select class="form-select" id="add-designation" required>
+                                        <option value="Software Engineer">Software Engineer</option>
+                                        <option value="Project Manager">Project Manager</option>
+                                        <option value="HR Manager">HR Manager</option>
+                                        <option value="Data Analyst">Data Analyst</option>
+                                        <option value="System Administrator">System Administrator</option>
+                                        <option value="SDE">SDE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-location" class="form-label fw-bold">Location</label>
+                                    <select class="form-select" id="add-location" required>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Medak">Medak</option>
+                                        <option value="Karimnagar">Karimnagar</option>
+                                        <option value="Mahbubnagar">Mahbubnagar</option>
+                                        <option value="Ranga Reddy">Ranga Reddy</option>
+                                        <option value="Medchal">Medchal</option>
+                                        <option value="HYD">HYD</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-gross" class="form-label fw-bold">Gross Salary <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="add-gross" placeholder="Enter Gross Salary" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary close-modal" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="add-emp-submit">Add Employee</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Sal view Slip-->
+    <div class="modal fade" id="salarySlipModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark">
+                    <h5 class="modal-title text-white">Salary Slip for <span id="employeeName"></span></h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <select id="salaryMonth" class="form-select">
+                            <option value="January 2025">January 2025</option>
+                            <option value="February 2025">February 2025</option>
+                            <option value="March 2025">March 2025</option>
+                            <option value="April 2025">April 2025</option>
+                            <option value="May 2025">May 2025</option>
+                            <option value="June 2025">June 2025</option>
+                            <option value="July 2025">July 2025</option>
+                            <option value="August 2025">August 2025</option>
+                            <option value="September 2025">September 2025</option>
+                            <option value="October 2025">October 2025</option>
+                            <option value="November 2025">November 2025</option>
+                            <option value="December 2025">December 2025</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <p><strong>Gross Salary:</strong> <span id="grossSalary"></span></p>
+                        </div>
+                        <div class="col">
+                            <p><strong>Total Deductions:</strong> <span id="totalDeductions"></span></p>
+                        </div>
+                        <div class="col">
+                            <p><strong>Net Salary:</strong> <span id="netSalary"></span></p>
+                        </div>
+                    </div>
+                    <h6><strong>Earnings:</strong></h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="earningsBody"></tbody>
+                    </table>
+                    <h6><strong>Deductions:</strong></h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deductionsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--view hoa(after)-->
+    <div class="col-md-9 col-lg-10 ms-md-auto px-4 " id="view-hoa">
+        <div class="">
+            <div class="px-4 d-flex justify-content-between align-items-start">
+                <h2 class="h5 m-0 fw-bold">Head Of Account</h2>
+            </div>
+            <div class=" row p-4 d-flex justify-content-between">
+                <div class="col-3">
+                    <select name="" id="" class="form-select w-100">
+                        <option selected>All</option>
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-2">
+                    <select name="" id="" class="form-select w-75">
+                        <option selected>All</option>
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-4 d-flex gap-2">
+                    <input type="text" class="form-control w-75">
+                    <input type="text" class="form-control w-75">
+                    <input type="text" class="form-control w-75">
+                    <input type="text" class="form-control w-75">
+                    <input type="text" class="form-control w-75">
+                    <input type="text" class="form-control w-75">
+                    <input type="text" class="form-control w-75">
+                </div>
+                <div class="col-3 gap-2">
+                    <button class="btn btn-success">Search</button>
+                    <Clear class="btn btn-outline-secondary">Clear</button>
+                </div>
+            </div>
+
+            
+            <div class="card-body mx-3">
+                <div class="table-responsive table-bordered">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-white">#</th>
+                                <th class="text-white">HOA</th>
+                                <th class="text-white">Department(HOD)</th>
+                                <th class="text-white">Est/Scheme</th>
+                                <th class="text-white">Scheme Name</th>
+                                <th class="text-white">Amount</th>
+                                <th class="text-white">Status</th>
+                                <th class="text-white">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hoaTable">
+                            <!-- Table rows will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="no-results" class="text-center text-muted d-none py-4">
+                    <i class="fas fa-search fa-2x mb-3 text-secondary"></i>
+                    <p>No users found matching your search criteria.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function() {
+            // Initially hide all content sections except employee details
+            $('.content-section').hide();
+            $('#employee-details').show();
+            
+            // Add active class to employee details by default
+            $('.nav-link').removeClass('active');
+            $('.nav-link:contains("Employee Details")').addClass('active');
+
+            // Handle sidebar navigation clicks
+            $('.nav-link').click(function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all nav links
+                $('.nav-link').removeClass('active');
+                
+                // Add active class to clicked nav link
+                $(this).addClass('active');
+                
+                // Hide all content sections
+                $('.content-section').hide();
+                
+                // Show the corresponding content section based on clicked item
+                if ($(this).text().includes('Employee Details')) {
+                    $('#employee-details').show();
+                } else if ($(this).text().includes('Salary Details')) {
+                    $('#salary-details').show();
+                } else if ($(this).text().includes('Reports')) {
+                    $('#reports').show();
+                } else if ($(this).text().includes('HOA')) {
+                    $('#hoa').show();
+                } else if ($(this).text().includes('Leaves')) {
+                    $('#leaves').show();
+                } else if ($(this).text().includes('Settings')) {
+                    $('#settings').show();
+                }
+            });
+
+            // Toggle sidebar on mobile
+            $('#sidebar-toggle').click(function() {
+                $('#sidebar').toggleClass('d-none');
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
