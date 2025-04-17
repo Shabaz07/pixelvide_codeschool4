@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyTicket - Movie Ticket Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .movie-card {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+        .movie-card.selected {
+            border: 2px solid #0d6efd;
+        }
+        .seat {
+            width: 35px;
+            height: 35px;
+            margin: 3px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .seat-available {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .seat-selected {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .seat-booked {
+            background-color: #6c757d;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .screen {
+            height: 10px;
+            background-color: #adb5bd;
+            border-radius: 50%;
+            margin: 20px auto 40px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .time-slot {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-slot.selected {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+        .theater-card {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .theater-card.selected {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        .booking-steps .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .booking-steps .step.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .booking-steps .step-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: #e9ecef;
+            margin: 0 10px;
+        }
+        .booking-steps .step-line.active {
+            background-color: #0d6efd;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-ticket-alt me-2"></i>
+                <span class="fw-bold">BookMyTicket</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Movies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Theaters</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Offers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Gift Cards</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div class="input-group me-3">
+                        <input type="search" class="form-control" placeholder="Search movies...">
+                        <button class="btn btn-light" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <button class="btn btn-outline-light">
+                        <i class="fas fa-user me-2"></i>Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Booking Process Steps -->
+    <div class="container mt-4">
+        <div class="booking-steps d-flex align-items-center mb-4">
+            <div class="step active">1</div>
+            <span class="ms-2 me-3 text-dark">Select Movie</span>
+            <div class="step-line active"></div>
+            <div class="step">2</div>
+            <span class="ms-2 me-3 text-muted">Select Theater</span>
+            <div class="step-line"></div>
+            <div class="step">3</div>
+            <span class="ms-2 me-3 text-muted">Select Seats</span>
+            <div class="step-line"></div>
+            <div class="step">4</div>
+            <span class="ms-2 text-muted">Checkout</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <!-- Step 1: Select Movie -->
+        <div id="step1" class="booking-step">
+            <h2 class="mb-4">Select a Movie</h2>
+            
+            <!-- Movie Categories -->
+            <ul class="nav nav-pills mb-4">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">All Movies</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Bollywood</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Hollywood</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Tollywood</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Kids</a>
+                </li>
+            </ul>
+            
+            <!-- Movies Grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                <!-- Movie 1 -->
+                <div class="col">
+                    <div class="card h-100 movie-card">
+                        <img src="https://via.placeholder.com/300x450" class="card-img-top" alt="Sikandar Movie Poster">
+                        <div class="card-body">
+                            <h5 class="card-title">Sikandar</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary">Action</span>
+                                <small class="text-muted">2h 30m</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                <span>8.5/10</span>
+                            </div>
+                            <p class="card-text small">Starring: Salman Khan, Rashmika Mandanna</p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-primary w-100" onclick="showStep2()">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Movie 2 -->
+                <div class="col">
+                    <div class="card h-100 movie-card">
+                        <img src="https://via.placeholder.com/300x450" class="card-img-top" alt="Devara Movie Poster">
+                        <div class="card-body">
+                            <h5 class="card-title">Devara</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary">Action/Drama</span>
+                                <small class="text-muted">2h 45m</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                <span>9.0/10</span>
+                            </div>
+                            <p class="card-text small">Starring: Jr NTR, Janhvi Kapoor</p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-primary w-100" onclick="showStep2()">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Movie 3 -->
+                <div class="col">
+                    <div class="card h-100 movie-card">
+                        <img src="https://via.placeholder.com/300x450" class="card-img-top" alt="Avatar 3 Movie Poster">
+                        <div class="card-body">
+                            <h5 class="card-title">Avatar 3</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary">Sci-Fi/Adventure</span>
+                                <small class="text-muted">3h 10m</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                <span>9.2/10</span>
+                            </div>
+                            <p class="card-text small">Starring: Sam Worthington, Zoe Saldana</p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-primary w-100" onclick="showStep2()">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Movie 4 -->
+                <div class="col">
+                    <div class="card h-100 movie-card">
+                        <img src="https://via.placeholder.com/300x450" class="card-img-top" alt="Mufasa Movie Poster">
+                        <div class="card-body">
+                            <h5 class="card-title">Mufasa: The Lion King</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary">Animation/Adventure</span>
+                                <small class="text-muted">1h 55m</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                <span>8.8/10</span>
+                            </div>
+                            <p class="card-text small">Starring: Aaron Pierre, Kelvin Harrison Jr.</p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-primary w-100" onclick="showStep2()">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Select Theater and Showtime -->
+        <div id="step2" class="booking-step d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Select Theater & Showtime</h2>
+                <button class="btn btn-outline-secondary" onclick="showStep1()">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Movies
+                </button>
+            </div>
+            
+            <!-- Selected Movie Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <img src="https://via.placeholder.com/150x225" class="img-fluid rounded" alt="Selected Movie">
+                        </div>
+                        <div class="col-md-10">
+                            <h4>Sikandar</h4>
+                            <div class="d-flex flex-wrap gap-3 mb-2">
+                                <span class="badge bg-secondary">Action</span>
+                                <span><i class="fas fa-clock me-1"></i> 2h 30m</span>
+                                <span><i class="fas fa-star text-warning me-1"></i> 8.5/10</span>
+                                <span><i class="fas fa-language me-1"></i> Hindi</span>
+                                <span><i class="fas fa-film me-1"></i> 2D, 3D, IMAX</span>
+                            </div>
+                            <p class="text-muted">A thrilling action movie starring Salman Khan and Rashmika Mandanna. Directed by A.R. Murugadoss.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Date Selection -->
+            <div class="mb-4">
+                <h5 class="mb-3">Select Date</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-primary time-slot selected">
+                        <div class="fw-bold">Today</div>
+                        <small>Apr 11</small>
+                    </button>
+                    <button class="btn btn-outline-primary time-slot">
+                        <div class="fw-bold">Tomorrow</div>
+                        <small>Apr 12</small>
+                    </button>
+                    <button class="btn btn-outline-primary time-slot">
+                        <div class="fw-bold">Saturday</div>
+                        <small>Apr 13</small>
+                    </button>
+                    <button class="btn btn-outline-primary time-slot">
+                        <div class="fw-bold">Sunday</div>
+                        <small>Apr 14</small>
+                    </button>
+                    <button class="btn btn-outline-primary time-slot">
+                        <div class="fw-bold">Monday</div>
+                        <small>Apr 15</small>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Theaters and Showtimes -->
+            <div class="mb-4">
+                <h5 class="mb-3">Select Theater & Showtime</h5>
+                
+                <!-- Theater 1 -->
+                <div class="card mb-3 theater-card selected">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5 class="mb-1">PVR Cinemas</h5>
+                                <p class="text-muted mb-2 small"><i class="fas fa-map-marker-alt me-1"></i> Mumbai Central, Mumbai</p>
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="badge bg-success">FOOD</span>
+                                    <span class="badge bg-info text-dark">PARKING</span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">10:00 AM</div>
+                                        <small>2D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot selected" onclick="showStep3()">
+                                        <div class="fw-bold">1:00 PM</div>
+                                        <small>3D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">4:00 PM</div>
+                                        <small>2D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">7:00 PM</div>
+                                        <small>IMAX</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">10:00 PM</div>
+                                        <small>3D</small>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Theater 2 -->
+                <div class="card mb-3 theater-card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5 class="mb-1">INOX</h5>
+                                <p class="text-muted mb-2 small"><i class="fas fa-map-marker-alt me-1"></i> Andheri West, Mumbai</p>
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="badge bg-success">FOOD</span>
+                                    <span class="badge bg-info text-dark">PARKING</span>
+                                    <span class="badge bg-warning text-dark">DOLBY</span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">11:30 AM</div>
+                                        <small>2D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">2:30 PM</div>
+                                        <small>3D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">5:30 PM</div>
+                                        <small>2D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">8:30 PM</div>
+                                        <small>IMAX</small>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Theater 3 -->
+                <div class="card theater-card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5 class="mb-1">Cinepolis</h5>
+                                <p class="text-muted mb-2 small"><i class="fas fa-map-marker-alt me-1"></i> Malad West, Mumbai</p>
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="badge bg-success">FOOD</span>
+                                    <span class="badge bg-warning text-dark">DOLBY</span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">12:15 PM</div>
+                                        <small>2D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">3:15 PM</div>
+                                        <small>3D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">6:15 PM</div>
+                                        <small>2D</small>
+                                    </button>
+                                    <button class="btn btn-outline-dark time-slot" onclick="showStep3()">
+                                        <div class="fw-bold">9:15 PM</div>
+                                        <small>3D</small>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Select Seats -->
+        <div id="step3" class="booking-step d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Select Seats</h2>
+                <button class="btn btn-outline-secondary" onclick="showStep2()">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Theaters
+                </button>
+            </div>
+            
+            <!-- Theater & Show Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-1">Sikandar (3D)</h5>
+                            <p class="text-muted mb-0">PVR Cinemas, Mumbai Central</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h5 class="mb-1">Today, 1:00 PM</h5>
+                            <p class="text-muted mb-0">Screen 2</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Seat Selection -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="screen w-75"></div>
+                        <p class="text-muted small">SCREEN</p>
+                    </div>
+                    
+                    <!-- Seat Map -->
+                    <div class="text-center mb-4">
+                        <!-- Row A -->
+                        <div class="mb-2">
+                            <span class="text-muted me-2">A</span>
+                            <div class="seat seat-available">A1</div>
+                            <div class="seat seat-available">A2</div>
+                            <div class="seat seat-available">A3</div>
+                            <div class="seat seat-available">A4</div>
+                            <div class="seat seat-booked">A5</div>
+                            <div class="seat seat-booked">A6</div>
+                            <div class="seat seat-available">A7</div>
+                            <div class="seat seat-available">A8</div>
+                            <div class="seat seat-available">A9</div>
+                            <div class="seat seat-available">A10</div>
+                        </div>
+                        
+                        <!-- Row B -->
+                        <div class="mb-2">
+                            <span class="text-muted me-2">B</span>
+                            <div class="seat seat-available">B1</div>
+                            <div class="seat seat-available">B2</div>
+                            <div class="seat seat-selected">B3</div>
+                            <div class="seat seat-selected">B4</div>
+                            <div class="seat seat-available">B5</div>
+                            <div class="seat seat-available">B6</div>
+                            <div class="seat seat-available">B7</div>
+                            <div class="seat seat-booked">B8</div>
+                            <div class="seat seat-booked">B9</div>
+                            <div class="seat seat-available">B10</div>
+                        </div>
+                        
+                        <!-- Row C -->
+                        <div class="mb-2">
+                            <span class="text-muted me-2">C</span>
+                            <div class="seat seat-available">C1</div>
+                            <div class="seat seat-available">C2</div>
+                            <div class="seat seat-available">C3</div>
+                            <div class="seat seat-available">C4</div>
+                            <div class="seat seat-available">C5</div>
+                            <div class="seat seat-available">C6</div>
+                            <div class="seat seat-available">C7</div>
+                            <div class="seat seat-available">C8</div>
+                            <div class="seat seat-available">C9</div>
+                            <div class="seat seat-available">C10</div>
+                        </div>
+                        
+                        <!-- Row D -->
+                        <div class="mb-2">
+                            <span class="text-muted me-2">D</span>
+                            <div class="seat seat-booked">D1</div>
+                            <div class="seat seat-booked">D2</div>
+                            <div class="seat seat-available">D3</div>
+                            <div class="seat seat-available">D4</div>
+                            <div class="seat seat-available">D5</div>
+                            <div class="seat seat-available">D6</div>
+                            <div class="seat seat-available">D7</div>
+                            <div class="seat seat-available">D8</div>
+                            <div class="seat seat-available">D9</div>
+                            <div class="seat seat-available">D10</div>
+                        </div>
+                        
+                        <!-- Row E -->
+                        <div class="mb-2">
+                            <span class="text-muted me-2">E</span>
+                            <div class="seat seat-available">E1</div>
+                            <div class="seat seat-available">E2</div>
+                            <div class="seat seat-available">E3</div>
+                            <div class="seat seat-available">E4</div>
+                            <div class="seat seat-booked">E5</div>
+                            <div class="seat seat-booked">E6</div>
+                            <div class="seat seat-available">E7</div>
+                            <div class="seat seat-available">E8</div>
+                            <div class="seat seat-available">E9</div>
+                            <div class="seat seat-available">E10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Seat Legend -->
+                    <div class="d-flex justify-content-center gap-4 mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="seat seat-available me-2" style="cursor: default;"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="seat seat-selected me-2" style="cursor: default;"></div>
+                            <span>Selected</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="seat seat-booked me-2" style="cursor: default;"></div>
+                            <span>Booked</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Ticket Type Selection -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h5>Ticket Details</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Selected Seats: <span class="fw-bold">B3, B4</span></label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ticket Type</label>
+                                <select class="form-select">
+                                    <option>Standard - ₹250</option>
+                                    <option>Premium - ₹350</option>
+                                    <option>Recliner - ₹450</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Price Summary</h5>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tickets (2 × ₹250)</span>
+                                <span>₹500</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Convenience Fee</span>
+                                <span>₹50</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>GST (18%)</span>
+                                <span>₹90</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total Amount</span>
+                                <span>₹640</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button class="btn btn-primary btn-lg px-5" onclick="showStep4()">Proceed to Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Checkout -->
+        <div id="step4" class="booking-step d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Checkout</h2>
+                <button class="btn btn-outline-secondary" onclick="showStep3()">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Seat Selection
+                </button>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Payment Methods -->
+                
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Payment Method</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="pills-card-tab" data-bs-toggle="pill" data-bs-target="#pills-card" type="button" role="tab">Credit/Debit Card</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="pills-upi-tab" data-bs-toggle="pill" data-bs-target="#pills-upi" type="button" role="tab">UPI</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="pills-netbanking-tab" data-bs-toggle="pill" data-bs-target="#pills-netbanking" type="button" role="tab">Net Banking</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="pills-wallet-tab" data-bs-toggle="pill" data-bs-target="#pills-wallet" type="button" role="tab">Wallet</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="pills-tabContent">
+                                <div class="tab-pane fade show active" id="pills-card" role="tabpanel" tabindex="0">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="cardNumber" class="form-label">Card Number</label>
+                                            <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="expiryDate" class="form-label">Expiry Date</label>
+                                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="cvv" class="form-label">CVV</label>
+                                                <input type="text" class="form-control" id="cvv" placeholder="123">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="nameOnCard" class="form-label">Name on Card</label>
+                                            <input type="text" class="form-control" id="nameOnCard" placeholder="John Doe">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab-pane fade" id="pills-upi" role="tabpanel" tabindex="0">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="upiId" class="form-label">UPI ID</label>
+                                            <input type="text" class="form-control" id="upiId" placeholder="yourname@upi">
+                                        </div>
+                                        <div class="text-center mt-4">
+                                            <p class="text-muted">You will receive a payment request on your UPI app</p>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab-pane fade" id="pills-netbanking" role="tabpanel" tabindex="0">
+                                    <div class="row mb-4">
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="HDFC Bank">
+                                                <div>HDFC</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="ICICI Bank">
+                                                <div>ICICI</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="SBI Bank">
+                                                <div>SBI</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="Axis Bank">
+                                                <div>Axis</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="otherBank" class="form-label">Other Banks</label>
+                                        <select class="form-select" id="otherBank">
+                                            <option selected>Select Bank</option>
+                                            <option>Bank of Baroda</option>
+                                            <option>Canara Bank</option>
+                                            <option>Punjab National Bank</option>
+                                            <option>Union Bank</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="pills-wallet" role="tabpanel" tabindex="0">
+                                    <div class="row mb-4">
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="Paytm">
+                                                <div>Paytm</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="PhonePe">
+                                                <div>PhonePe</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="Amazon Pay">
+                                                <div>Amazon Pay</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="card text-center p-3">
+                                                <img src="https://via.placeholder.com/50" class="mx-auto mb-2" alt="Google Pay">
+                                                <div>Google Pay</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Contact Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="fullName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="fullName" placeholder="John Doe">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" placeholder="john@example.com">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" placeholder="+91 9876543210">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Order Summary -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Order Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="https://via.placeholder.com/80x120" class="me-3 rounded" alt="Movie Poster">
+                                <div>
+                                    <h6 class="mb-1">Sikandar (3D)</h6>
+                                    <p class="text-muted mb-0 small">PVR Cinemas, Mumbai</p>
+                                    <p class="text-muted mb-0 small">Today, 1:00 PM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Seats</span>
+                                    <span>B3, B4</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Ticket Type</span>
+                                    <span>Standard</span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Tickets (2 × ₹250)</span>
+                                    <span>₹500</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Convenience Fee</span>
+                                    <span>₹50</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>GST (18%)</span>
+                                    <span>₹90</span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex justify-content-between fw-bold mb-3">
+                                <span>Total Amount</span>
+                                <span>₹640</span>
+                            </div>
+                            
+                            <button class="btn btn-primary w-100 btn-lg">Pay ₹640</button>
+                            
+                            <div class="mt-3 text-center">
+                                <small class="text-muted">By proceeding, you agree to our <a href="#">Terms & Conditions</a></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="mb-3">BookMyTicket</h5>
+                    <p class="text-muted small">The ultimate destination for movie tickets. Experience the best in entertainment with our easy booking platform.</p>
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h6 class="mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted">Movies</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Theaters</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Upcoming Releases</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Gift Cards</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Offers</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h6 class="mb-3">Help & Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted">Contact Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">FAQs</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Terms of Use</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted">Refund Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="mb-3">Download Our App</h6>
+                    <p class="text-muted small">Book tickets on the go with our mobile app.</p>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="#" class="btn btn-outline-light btn-sm d-flex align-items-center">
+                            <i class="fab fa-google-play me-2"></i> Google Play
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm d-flex align-items-center">
+                            <i class="fab fa-apple me-2"></i> App Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="text-center text-muted small">
+                <p class="mb-0">© 2025 BookMyTicket. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple navigation between steps
+        function showStep1() {
+            document.querySelectorAll('.booking-step').forEach(step => step.classList.add('d-none'));
+            document.getElementById('step1').classList.remove('d-none');
+            
+            // Update progress steps
+            updateSteps(1);
+        }
+        
+        function showStep2() {
+            document.querySelectorAll('.booking-step').forEach(step => step.classList.add('d-none'));
+            document.getElementById('step2').classList.remove('d-none');
+            
+            // Update progress steps
+            updateSteps(2);
+        }
+        
+        function showStep3() {
+            document.querySelectorAll('.booking-step').forEach(step => step.classList.add('d-none'));
+            document.getElementById('step3').classList.remove('d-none');
+            
+            // Update progress steps
+            updateSteps(3);
+        }
+        
+        function showStep4() {
+            document.querySelectorAll('.booking-step').forEach(step => step.classList.add('d-none'));
+            document.getElementById('step4').classList.remove('d-none');
+            
+            // Update progress steps
+            updateSteps(4);
+        }
+        
+        function updateSteps(activeStep) {
+            // Reset all steps
+            document.querySelectorAll('.booking-steps .step').forEach((step, index) => {
+                step.classList.remove('active');
+                
+                // Get the next step-line if it exists
+                const nextLine = step.nextElementSibling?.nextElementSibling;
+                if (nextLine && nextLine.classList.contains('step-line')) {
+                    nextLine.classList.remove('active');
+                }
+                
+                // Add active class to current and previous steps
+                if (index < activeStep) {
+                    step.classList.add('active');
+                    
+                    // Add active class to the line after this step (if not the last step)
+                    if (nextLine && index < activeStep - 1) {
+                        nextLine.classList.add('active');
+                    }
+                }
+            });
+            
+            // Update step text colors
+            document.querySelectorAll('.booking-steps span').forEach((span, index) => {
+                if (index < activeStep) {
+                    span.classList.remove('text-muted');
+                    span.classList.add('text-dark');
+                } else if (index > 0) { // Skip the first span which is always active
+                    span.classList.add('text-muted');
+                    span.classList.remove('text-dark');
+                }
+            });
+        }
+        
+        // Seat selection functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const availableSeats = document.querySelectorAll('.seat-available');
+            
+            availableSeats.forEach(seat => {
+                seat.addEventListener('click', function() {
+                    this.classList.toggle('seat-selected');
+                    this.classList.toggle('seat-available');
+                });
+            });
+            
+            // Time slot selection
+            const timeSlots = document.querySelectorAll('.time-slot');
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    // If in the same parent, deselect others
+                    const parent = this.closest('.card-body') || this.closest('.mb-4');
+                    if (parent) {
+                        parent.querySelectorAll('.time-slot').forEach(s => {
+                            s.classList.remove('selected');
+                        });
+                    }
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Theater card selection
+            const theaterCards = document.querySelectorAll('.theater-card');
+            theaterCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    theaterCards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

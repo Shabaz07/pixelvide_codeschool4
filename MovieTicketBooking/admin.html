@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyTicket - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+
+    <style>
+        .sidebar-link {
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .movie-nav-link.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <aside class="col-md-3 col-lg-2 bg-dark text-white vh-100 position-fixed shadow" id="sidebar">
+                <div class="p-3">
+                    <div class="d-flex align-items-center mb-4 py-2">
+                        <div class="bg-primary rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <h4 class="m-0 fw-bold">BookMyTicket</h4>
+                    </div>
+                    
+                    <nav>
+                        <ul class="nav flex-column">
+                            <li class="nav-item mb-2">
+                                <a href="#" class="nav-link text-white active py-2 px-3 sidebar-link">
+                                    <i class="fas fa-film me-2"></i>Movie List</a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="#" class="nav-link text-white py-2 px-3 sidebar-link" id="salary-table">
+                                    <i class="fas fa-theater-masks me-2"></i>Theater List
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="#" class="nav-link text-white py-2 px-3 sidebar-link">
+                                    <i class="fas fa-calendar-plus me-2"></i>Add Show
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="#" class="nav-link text-white py-2 px-3 sidebar-link">
+                                    <i class="fas fa-ticket-alt me-2"></i>Bookings
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="col-md-9 col-lg-10 ms-md-auto">
+                
+                <!-- Header -->
+                <header class="d-flex justify-content-between align-items-center py-3 px-4 border-bottom sticky-top bg-white shadow-sm">
+                    <div class="d-flex align-items-center">
+                        <button id="sidebar-toggle" class="btn btn-outline-secondary me-3 d-md-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="h4 m-0 fw-bold text-primary">Admin Dashboard</h1>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="input-group me-3 shadow-sm" style="max-width: 300px;">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-primary"></i></span>
+                            <input type="search" id="search-input" class="form-control border-start-0" placeholder="Search...">
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 text-end">
+                                <div class="fw-semibold"><small>Admin User</small></div>
+                                <small class="text-muted">Administrator</small>
+                            </div>
+                            <div class="bg-primary rounded-circle text-white text-center admin-avatar shadow-sm">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <a href="login.html" class="nav-link text-white d-flex align-items-center py-2 px-3 bg-danger rounded sidebar-link">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </header>
+
+                <!--Movie List -->
+                <div class="p-4 content-section" id="movieList">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3 bg-white">
+                            <h2 class="h5 m-0 fw-bold">Movies Management</h2>
+                            <button class="btn btn-primary" id="add-movie-btn" data-bs-toggle="modal" data-bs-target="#add-movie-modal">
+                                <i class="fas fa-plus me-2"></i> Add Movie
+                            </button>
+                        </div>
+
+                        <div class="card-header bg-white border-top border-bottom-0">
+                            <ul class="nav nav-pills d-flex justify-content-start align-items-center py-2 gap-2" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                  <button class="movie-nav-link btn btn-outline-primary active px-4" id="pills-bollywood-tab" data-bs-toggle="pill" data-bs-target="#pills-bollywood" type="button" role="tab" aria-controls="pills-bollywood" aria-selected="true" value="1">Bollywood</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                  <button class="movie-nav-link btn btn-outline-primary px-4" id="pills-tollywood-tab" data-bs-toggle="pill" data-bs-target="#pills-tollywood" type="button" role="tab" aria-controls="pills-tollywood" aria-selected="false" value="2">Tollywood</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                  <button class="movie-nav-link btn btn-outline-primary px-4" id="pills-hollywood-tab" data-bs-toggle="pill" data-bs-target="#pills-hollywood" type="button" role="tab" aria-controls="pills-hollywood" aria-selected="false" value="3">Hollywood</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                  <button class="movie-nav-link btn btn-outline-primary px-4" id="pills-kids-tab" data-bs-toggle="pill" data-bs-target="#pills-kids" type="button" role="tab" aria-controls="pills-kids" aria-selected="false" value="4">Kids</button>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tab-content" id="pills-tabContent">
+                            <div class="tab-pane fade show active" id="pills-bollywood" role="tabpanel" aria-labelledby="pills-bollywood-tab" tabindex="0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-bordered table-dark">
+                                                <tr>
+                                                    <th class="text-white py-3">Id</th>
+                                                    <th class="text-white py-3">Title</th>
+                                                    <th class="text-white py-3">Release Date</th>
+                                                    <th class="text-white py-3">Category</th>
+                                                    <th class="text-white py-3">Genre</th>
+                                                    <th class="text-white py-3">Actors</th>
+                                                    <th class="text-white py-3">Status</th>
+                                                    <!-- <th class="text-white py-3">Actions</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bollywoodMovieList"></tbody>
+                                        </table>
+                                    </div>
+                                    <div id="no-results" class="text-center text-muted d-none py-4">
+                                        <i class="fas fa-film fa-2x mb-3 text-secondary"></i>
+                                        <p>No Movies Found</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-tollywood" role="tabpanel" aria-labelledby="pills-tollywood-tab" tabindex="0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-dark table-bordered">
+                                                <tr>
+                                                    <th class="text-white py-3">Id</th>
+                                                    <th class="text-white py-3">Title</th>
+                                                    <th class="text-white py-3">Release Date</th>
+                                                    <th class="text-white py-3">Category</th>
+                                                    <th class="text-white py-3">Genre</th>
+                                                    <th class="text-white py-3">Actors</th>
+                                                    <th class="text-white py-3">Status</th>
+                                                    <!-- <th class="text-white py-3">Actions</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tollywoodMovieList">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-hollywood" role="tabpanel" aria-labelledby="pills-hollywood-tab" tabindex="0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-dark table-bordered">
+                                                <tr>
+                                                    <th class="text-white py-3">Id</th>
+                                                    <th class="text-white py-3">Title</th>
+                                                    <th class="text-white py-3">Release Date</th>
+                                                    <th class="text-white py-3">Category</th>
+                                                    <th class="text-white py-3">Genre</th>
+                                                    <th class="text-white py-3">Actors</th>
+                                                    <th class="text-white py-3">Status</th>
+                                                    <!-- <th class="text-white py-3">Actions</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody id="hollywoodMovieList">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-kids" role="tabpanel" aria-labelledby="pills-kids-tab" tabindex="0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-dark table-bordered">
+                                                <tr>
+                                                    <th class="text-white py-3">Id</th>
+                                                    <th class="text-white py-3">Title</th>
+                                                    <th class="text-white py-3">Release Date</th>
+                                                    <th class="text-white py-3">Category</th>
+                                                    <th class="text-white py-3">Genre</th>
+                                                    <th class="text-white py-3">Actors</th>
+                                                    <th class="text-white py-3">Status</th>
+                                                    <!-- <th class="text-white py-3">Actions</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody id="kidsMovieList">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!--Theater list-->
+                <div class="p-4 content-section" id="theaterList">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3 bg-white">
+                            <h2 class="h5 m-0 fw-bold">Theaters Management</h2>
+                            <button class="btn btn-primary" id="add-theater-btn" data-bs-toggle="modal" data-bs-target="#add-theater-modal">
+                                <i class="fas fa-plus me-2"></i> Add Theater
+                            </button>
+                        </div>
+                        
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-dark table-bordered">
+                                        <tr>
+                                            <th class="text-white py-3">Id</th>
+                                            <th class="text-white py-3">Theater Name</th>
+                                            <th class="text-white py-3">Location</th>
+                                            <th class="text-white py-3">Screens</th>
+                                            <th class="text-white py-3">Show Time</th>
+                                            <th class="text-white py-3">Status</th>
+                                            <!-- <th class="text-white py-3">Actions</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="renderTheaterList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-results" class="text-center text-muted d-none py-4">
+                                <i class="fas fa-theater-masks fa-2x mb-3 text-secondary"></i>
+                                <p>No Theater Found</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Add show-->
+                <div class="p-4 content-section" id="addShow">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-header py-3 bg-white">
+                            <h2 class="h5 m-0 fw-bold">Add Movie to Theater</h2>
+                        </div>
+                        <div class="card-body">
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="category" class="form-label fw-semibold">Category</label>
+                                    <select class="form-select" id="categoryId">
+                                        <option value="">Select Category</option>
+                                        <option value="1">Bollywood</option>
+                                        <option value="2">Tollywood</option>
+                                        <option value="3">Hollywood</option>
+                                        <option value="4">Kids</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="movieTitle" class="form-label fw-semibold">Movie Title</label>
+                                    <select class="form-select" id="movieTitle">
+                                        <option value="">Select Movie</option>
+                                        <option value="1">Sikandar</option>
+                                        <option value="2">Devara</option>
+                                        <option value="3">Avatar</option>
+                                        <option value="4">Mufasa</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="theaterName" class="form-label fw-semibold">Theater</label>
+                                    <select class="form-select" id="theaterName">
+                                        <option value="">Select Theater</option>
+                                        <option value="1">PVR Cinemas</option>
+                                        <option value="2">INOX</option>
+                                        <option value="3">Cinepolis</option>
+                                    </select>
+                                </div>
+                                <!-- <div class="col-12">
+                                    <label for="movieDescription" class="form-label fw-semibold">Movie Description</label>
+                                    <textarea class="form-control" id="movieDescription" rows="3" style="max-height: 80px;"></textarea>
+                                </div> -->
+                                <div class="col-md-6">
+                                    <label for="showTime" class="form-label fw-semibold">Show Time</label>
+                                    <select class="form-select" id="showTime">
+                                        <option value="">Select Show Time</option>
+                                        <option value="1">10:00 AM</option>
+                                        <option value="2">1:00 PM</option>
+                                        <option value="3">4:00 PM</option>
+                                        <option value="4">7:00 PM</option>
+                                        <option value="5">10:00 PM</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="screenNumber" class="form-label fw-semibold">Screen Number</label>
+                                    <select class="form-select" id="screenNumber">
+                                        <option value="">Select Screen</option>
+                                        <option value="1">Screen 1</option>
+                                        <option value="2">Screen 2</option>
+                                        <option value="3">Screen 3</option>
+                                        <option value="4">Screen 4</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 text-end mt-4">
+                                    <button type="button" class="btn btn-outline-secondary me-2">Cancel</button>
+                                    <button type="submit" class="btn btn-primary px-4" id="addShowBtn">Add Show</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Bookings-->
+                <div class="p-4 content-section" id="bookingList">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3 bg-white">
+                            <h2 class="h5 m-0 fw-bold">Booking Management</h2>
+                        </div>
+                        
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-dark table-bordered">
+                                        <tr>
+                                            <th class="text-white py-3">Id</th>
+                                            <th class="text-white py-3">Customer Name</th>
+                                            <th class="text-white py-3">Category</th>
+                                            <th class="text-white py-3">Movie Title</th>
+                                            <th class="text-white py-3">Theater Name</th>
+                                            <th class="text-white py-3">Show Time</th>
+                                            <th class="text-white py-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="renderBookingList">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-results" class="text-center text-muted d-none py-4">
+                                <i class="fas fa-theater-masks fa-2x mb-3 text-secondary"></i>
+                                <p>No Booking Found</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!--Add Movie-->
+    <div class="modal modal-lg fade" id="add-movie-modal" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="movieModalLabel">Add New Movie</h5>
+                    <button type="button" class="btn-close close-btn" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-form">
+                        <div class="container-fluid">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="category" class="form-label fw-semibold">Category</label>
+                                    <select class="form-select" id="addCategoryId">
+                                        <option value="">Select Category</option>
+                                        <option value="1">Bollywood</option>
+                                        <option value="2">Tollywood</option>
+                                        <option value="3">Hollywood</option>
+                                        <option value="4">Kids</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-movie-name" class="form-label fw-bold">Movie Name</label>
+                                    <input type="text" class="form-control" id="add-movie-name" placeholder="Enter Movie Name..." required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-movie-genre" class="form-label fw-bold">Genre</label>
+                                    <input type="text" class="form-control" id="add-movie-genre" placeholder="Enter Movie Genre..." required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-actors" class="form-label fw-bold">Actors</label>
+                                    <input type="text" class="form-control" id="add-actors" placeholder="Enter Actors.." required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-rDate" class="form-label fw-bold">Release Date</label>
+                                    <input type="date" class="form-control" id="add-rDate" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-movie-duration" class="form-label fw-bold">Duration</label>
+                                    <input type="time" class="form-control" id="add-movie-duration" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="add-movie-description" class="form-label fw-bold">Movie Discription</label>
+                                    <textarea type="textarea" class="form-control" id="add-movie-description" required></textarea></div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="inputGroupFile01" id="uploadMovie">Upload</label>
+                                        <input type="file" class="form-control" id="moviePosterCode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary close-modal" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="add-movie-submit">Add Movie</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--Add Theater-->
+    <div class="modal modal-lg fade" id="add-theater-modal" tabindex="-1" aria-labelledby="theaterModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="theaterModalLabel">Add New Movie</h5>
+                    <button type="button" class="btn-close close-btn" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-form">
+                        <div class="container-fluid">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-theater-name" class="form-label fw-bold">Theater Name</label>
+                                    <input type="text" class="form-control" id="add-theater-name" placeholder="Enter Theater Name..." required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-theater-add" class="form-label fw-bold">Address</label>
+                                    <input type="text" class="form-control" id="add-theater-loc" placeholder="Enter Theater Address..." required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-screens" class="form-label fw-bold">Screens</label>
+                                    <select class="form-select" id="add-screens">
+                                        <option value="">Select Screens</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-show-times" class="form-label fw-bold">Show Time</label>
+                                    <select class="form-select" id="add-show-times">
+                                        <option value="">Select Show Time</option>
+                                        <option value="1">10:00 AM</option>
+                                        <option value="2">1:00 PM</option>
+                                        <option value="3">4:00 PM</option>
+                                        <option value="4">7:00 PM</option>
+                                        <option value="5">10:00 PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary close-modal" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="add-theater-submit">Add Theater</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./admin.js"></script>
+</body>
+</html>
